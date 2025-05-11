@@ -2,7 +2,7 @@
     "name": "@moon7/result",
     "author": "Munir Hussin <profoundseven@gmail.com>",
     "license": "MIT",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "TypeScript Result type for functional error handling",
     "keywords": [
         "typescript",
