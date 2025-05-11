@@ -1,33 +1,30 @@
-import { Outcome } from "./outcome";
-import { AsyncMatch, Match, NodeCallback, Recover } from "./types";
-import { AsyncResult, isPending } from "~/async";
+import { Outcome } from "~/outcome";
+import { Match, NodeCallback, Recover } from "~/types";
 
 export interface Success<V> {
-    readonly status: "success";
     readonly value: V;
 }
 
 export interface Failure<E> {
-    readonly status: "failure";
     readonly error: E;
 }
 
 export type Result<V, E = any> = Success<V> | Failure<E>;
 
 export function isSuccess<V, E>(result: Result<V, E>): result is Success<V> {
-    return result.status === "success";
+    return result != null && typeof result === "object" && "value" in result;
 }
 
 export function isFailure<V, E>(result: Result<V, E>): result is Failure<E> {
-    return result.status === "failure";
+    return result != null && typeof result === "object" && "error" in result;
 }
 
 export function success<V>(value: V): Success<V> {
-    return { status: "success", value };
+    return { value };
 }
 
 export function failure<E>(error: E): Failure<E> {
-    return { status: "failure", error };
+    return { error };
 }
 
 export function unwrap<V, E>(result: Result<V, E>): V {
@@ -37,12 +34,10 @@ export function unwrap<V, E>(result: Result<V, E>): V {
     throw result.error;
 }
 
-export function unwrapOr<V, E>(result: Result<V, E>, defaultValue: V): V {
+export function unwrapOr<V, E>(result: Result<V, E>): V | undefined;
+export function unwrapOr<V, E>(result: Result<V, E>, defaultValue: V): V;
+export function unwrapOr<V, E>(result: Result<V, E>, defaultValue?: V): V | undefined {
     return isSuccess(result) ? result.value : defaultValue;
-}
-
-export function unwrapOrUndefined<V, E>(result: Result<V, E>): V | undefined {
-    return unwrapOr(result, undefined);
 }
 
 export function unwrapOrElse<V, E>(result: Result<V, E>, fn: Recover<V, E>): V {
@@ -78,21 +73,28 @@ export async function fromPromise<V, E>(promise: Promise<V>): Promise<Result<V, 
     }
 }
 
-export function fromNullable<V, E>(value: V | null | undefined, error: E): Result<V, E> {
+export function fromNullable<V>(value: V | null | undefined): Result<V, undefined>;
+export function fromNullable<V, E>(value: V | null | undefined, error: E): Result<V, E>;
+export function fromNullable<V, E>(value: V | null | undefined, error?: E): Result<V, E | undefined> {
     return value != null ? success(value) : failure(error);
+}
+
+/**
+ * Converts a Result callback function into a Node-style callback function.
+ */
+export function liftOutcome<V, E>(cb: (result: Result<V, E>) => void): NodeCallback<V, E> {
+    return (error: E | null | undefined, result: V) => {
+        if (error != null) {
+            cb(failure(error));
+        } else {
+            cb(success(result));
+        }
+    };
 }
 
 // const text = await fromNodeCallback<NonSharedBuffer, NodeJS.ErrnoException>((cb) => readFile("package.json", cb));
 export function fromNodeCallback<V, E>(fn: (callback: NodeCallback<V, E>) => void): Promise<Result<V, E>> {
-    return new Promise<Result<V, E>>((resolve) => {
-        fn((error, result) => {
-            if (error) {
-                resolve(failure(error));
-            } else {
-                resolve(success(result));
-            }
-        });
-    });
+    return new Promise<Result<V, E>>(resolve => fn(liftOutcome(result => resolve(result))));
 }
 
 export function fromOutcome<V, E>(outcome: Outcome<V, E>): Result<V, E> {
@@ -129,14 +131,10 @@ export function match<V, E, T>(result: Result<V, E>, patterns: Match<V, E, T>): 
     return isSuccess(result) ? patterns.success(result.value) : patterns.failure(result.error);
 }
 
-export async function matchAsync<V, E, T>(result: AsyncResult<V, E>, patterns: AsyncMatch<V, E, T>): Promise<T> {
-    return isPending(result) ? patterns.pending() : match(result, patterns);
-}
-
 export function map<V, U, E>(result: Result<V, E>, fn: (value: V) => U): Result<U, E> {
     return isSuccess(result) ? success(fn(result.value)) : result;
 }
 
-export function flatMap<V, U, E>(result: Result<V, E>, fn: (value: V) => Result<U, E>): Result<U, E> {
+export function chain<V, U, E>(result: Result<V, E>, fn: (value: V) => Result<U, E>): Result<U, E> {
     return isSuccess(result) ? fn(result.value) : result;
 }
