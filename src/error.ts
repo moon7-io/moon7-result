@@ -14,13 +14,13 @@ export function safely<T>(x: Fn<T | Promise<T>> | Promise<T>, defaultValue: T): 
         const result = fromTry(x);
         if (isSuccess(result)) {
             if (result.value instanceof Promise) {
-                return fromPromise(result.value).then((value) => unwrapOr(value, defaultValue));
+                return fromPromise(result.value).then(value => unwrapOr(value, defaultValue));
             }
             return result.value;
         }
         return defaultValue;
     }
-    return fromPromise(x).then((value) => unwrapOr(value, defaultValue));
+    return fromPromise(x).then(value => unwrapOr(value, defaultValue));
 }
 
 export function attempt<T>(x: Fn<T>): Result<T>;
