@@ -1,10 +1,12 @@
 # 🌙 @moon7/result
+# 🌙 @moon7/result
 
 [![npm version](https://img.shields.io/npm/v/@moon7/result.svg)](https://www.npmjs.com/package/@moon7/result)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 A lightweight, zero-dependency TypeScript library for handling operations that might fail in a functional way. 
 
+## ✨ Features
 ## ✨ Features
 
 - 🛡️ **Type-safe error handling** - Handle success and failure states without exceptions
@@ -13,6 +15,7 @@ A lightweight, zero-dependency TypeScript library for handling operations that m
 - 🧪 **Pattern matching** - Elegant pattern matching for handling different result states
 - 📦 **Zero dependencies** - Lightweight and focused utility
 
+## 📦 Installation
 ## 📦 Installation
 
 ```bash
@@ -27,7 +30,9 @@ pnpm add @moon7/result
 ```
 
 ## 🧩 Core Concepts
+## 🧩 Core Concepts
 
+### 🔄 Result Type
 ### 🔄 Result Type
 
 The core of the library is the `Result<V, E>` type, which can be either a `Success<V>` or a `Failure<E>`:
@@ -44,6 +49,7 @@ interface Failure<E> {
 }
 ```
 
+### 🤔 Maybe Type
 ### 🤔 Maybe Type
 
 The library includes a `Maybe<T>` type for handling optional values in a functional way. It's unified with the `Result` type, meaning all Result operations work seamlessly with Maybe:
@@ -73,6 +79,7 @@ const chained = chain(someValue, x => x > 20 ? some(x) : none);  // some(42)
 The Maybe type is implemented as a specialized Result where `Some<T>` is a `Success<T>` and `None` is a `Failure<null>`. This allows you to reuse all the Result utility functions with Maybe values.
 
 ### 📋 Outcome Type
+### 📋 Outcome Type
 
 The `Outcome<V, E>` type represents the common Node.js callback argument pattern of `(error, value)` tuples:
 
@@ -99,6 +106,7 @@ The Outcome type is primarily used:
 - For conversion to Result via `fromOutcome()` to leverage Result's rich API
 
 ## 🚀 Basic Usage
+## 🚀 Basic Usage
 
 ```typescript
 import { success, failure, isSuccess, unwrapOr } from '@moon7/result';
@@ -117,6 +125,7 @@ const value = unwrapOr(failureResult, 0); // 0
 ```
 
 ### 🛡️ Safe Operations
+### 🛡️ Safe Operations
 
 ```typescript
 import { fromTry, fromPromise } from '@moon7/result';
@@ -128,6 +137,7 @@ const result = fromTry(() => JSON.parse(someInput));
 const asyncResult = await fromPromise(fetch('https://api.example.com/data'));
 ```
 
+### 🔧 Working with Results
 ### 🔧 Working with Results
 
 ```typescript
@@ -162,6 +172,7 @@ const any = any([result1, result2, result3]); // Success if ANY succeeds
 ```
 
 ### ⏱️ Async Support
+### ⏱️ Async Support
 
 The library provides full support for asynchronous operations:
 
@@ -184,6 +195,7 @@ const data = match(result, {
 });
 ```
 
+### 🔄 AsyncResult for Loading States
 ### 🔄 AsyncResult for Loading States
 
 The library also provides an `AsyncResult` type that adds a third "pending" state to represent loading operations:
@@ -251,6 +263,7 @@ function UserProfile({ userId }: { userId: string }) {
 ```
 
 ### 📋 Outcome Utilities
+### 📋 Outcome Utilities
 
 The library also provides a `fromNodeCallback` and `liftOutcome` utilities that directly works with Node.js-style callback functions:
 
@@ -285,6 +298,7 @@ multipleCallbacks(
 This allows you to easily bridge Node.js callback-based APIs with the functional Result pattern.
 
 ### 🧰 Additional Utilities
+### 🧰 Additional Utilities
 
 The library also provides utilities for assertions and nullable handling:
 
@@ -318,6 +332,7 @@ function processShape(shape: Shape) {
 
 The `assertNever` function is particularly valuable for exhaustiveness checking in TypeScript. If you add a new variant to the `Shape` type but forget to handle it in the switch statement, TypeScript will give you a compile-time error, preventing potential bugs.
 
+### ⚠️ Error Raising
 ### ⚠️ Error Raising
 
 The library provides convenient ways to throw errors as expressions:
@@ -393,7 +408,78 @@ const item = items.find(i => i.id === id) ?? raise(new Error(`Item ${id} not fou
 | `safely<T>(x, defaultValue)`            | Safely executes a function returning a default on error          |
 | `attempt<T>(x)`                         | Similar to `safely` but returns a `Result` instead               |
 | `raise<E>(error?)`                      | Throws an error as an expression                                 |
+## 📚 API Reference
 
+| Export                                  | Description                                                      |
+| --------------------------------------- | ---------------------------------------------------------------- |
+| **📋 Core Types**                        |                                                                  |
+| `Result<V, E>`                          | Union type of `Success<V>` and `Failure<E>`                      |
+| `Success<V>`                            | Represents a successful operation with a value                   |
+| `Failure<E>`                            | Represents a failed operation with an error                      |
+| `Maybe<T>`                              | Union type of `Some<T>` and `None` for handling optional values  |
+| `Some<T>`                               | Represents a present value in a Maybe context                    |
+| `None`                                  | Represents absence of a value in a Maybe context                 |
+| `AsyncResult<V, E>`                     | Represents a value that can be pending, success, or failure      |
+| `Pending`                               | Represents a pending/loading state                               |
+| `Outcome<V, E>`                         | Tuple-based representation of [error, value] pairs               |
+| **🔍 Type Guards**                       |                                                                  |
+| `isSuccess<V, E>(result)`               | Checks if a result is a `Success<V>`                             |
+| `isFailure<V, E>(result)`               | Checks if a result is a `Failure<E>`                             |
+| `isSome<T>(maybe)`                      | Checks if a maybe is a `Some<T>`                                 |
+| `isNone<T>(maybe)`                      | Checks if a maybe is `None`                                      |
+| `isPending<V, E>(result)`               | Checks if an async result is `Pending`                           |
+| `isResult<V, E>(result)`                | Checks if something is a `Result<V, E>`                          |
+| `isAsyncResult<V, E>(result)`           | Checks if something is an `AsyncResult<V, E>`                    |
+| **🏗️ Constructors**                      |                                                                  |
+| `success<V>(value)`                     | Creates a `Success<V>` result                                    |
+| `failure<E>(error)`                     | Creates a `Failure<E>` result                                    |
+| `some<T>(value)`                        | Creates a `Some<T>` maybe value                                  |
+| `none`                                  | Constant representing `None`                                     |
+| `pending`                               | Constant representing the pending state                          |
+| **📦 Unwrapping Functions**              |                                                                  |
+| `unwrap<V, E>(result)`                  | Extracts the value or throws the error                           |
+| `unwrapOr<V, E>(result, defaultValue)`  | Extracts the value or returns a default                          |
+| `unwrapOr<V, E>(result)`                | Extracts the value or returns undefined                          |
+| `unwrapOrElse<V, E>(result, fn)`        | Extracts the value or computes a fallback                        |
+| **🔄 Error Recovery**                    |                                                                  |
+| `recover<V, E>(result, fn)`             | Transforms a failure into a success by recovering from the error |
+| **🛠️ Result Creation**                   |                                                                  |
+| `fromTry<V, E>(fn)`                     | Creates a result from a function that might throw                |
+| `fromTryAsync<V, E>(fn)`                | Creates a result from an async function that might throw         |
+| `fromPromise<V, E>(promise)`            | Creates a result from a promise                                  |
+| `fromNullable<V, E>(value, error)`      | Creates a result from a nullable value                           |
+| `fromNodeCallback<V, E>(fn)`            | Creates a result from a Node.js style callback                   |
+| `fromOutcome<V, E>(outcome)`            | Converts an `Outcome<V, E>` to a `Result<V, E>`                  |
+| `fromMaybe<T>(maybe)`                   | Converts a `Maybe<T>` to a `Result<T, null>`                     |
+| `liftOutcome<V, E>(cb)`                 | Converts a Result callback to a Node-style callback              |
+| **📚 Collection Operations**             |                                                                  |
+| `all<V, E>(results)`                    | Succeeds if all results succeed, fails on first failure          |
+| `any<V, E>(results)`                    | Succeeds on first success, fails if all fail                     |
+| **🧩 Pattern Matching**                  |                                                                  |
+| `match<V, E, T>(result, patterns)`      | Applies success or failure function based on result              |
+| `matchAsync<V, E, T>(result, patterns)` | Async version of `match` for AsyncResults                        |
+| **🔄 Transformations**                   |                                                                  |
+| `map<V, U, E>(result, fn)`              | Maps a success value, preserves failure                          |
+| `chain<V, U, E>(result, fn)`            | Maps a success to another result, preserves failure              |
+| **🧰 Utility Functions**                 |                                                                  |
+| `must<T>(value, errorMessage?)`         | Ensures a value is not null or undefined                         |
+| `strictMust<T>(value, errorMessage?)`   | Ensures a value is not undefined                                 |
+| `assert<T>(condition, message?)`        | Throws if condition is false                                     |
+| `assertNever(value)`                    | Used for exhaustive checks in switch statements                  |
+| `safely<T>(x, defaultValue)`            | Safely executes a function returning a default on error          |
+| `attempt<T>(x)`                         | Similar to `safely` but returns a `Result` instead               |
+| `raise<E>(error?)`                      | Throws an error as an expression                                 |
+
+## 🔗 Related Libraries
+
+| Library                                                     | Description                                                                     | npm                                                                                                             |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| [@moon7/async](https://github.com/moon7-io/moon7-async)     | Asynchronous utilities for managing promises, concurrent operations, and timing | [![npm version](https://img.shields.io/npm/v/@moon7/async.svg)](https://www.npmjs.com/package/@moon7/async)     |
+| [@moon7/inspect](https://github.com/moon7-io/moon7-inspect) | Runtime type checking with powerful, composable type inspectors                 | [![npm version](https://img.shields.io/npm/v/@moon7/inspect.svg)](https://www.npmjs.com/package/@moon7/inspect) |
+| [@moon7/result](https://github.com/moon7-io/moon7-result)   | Functional error handling with Result and Maybe types                           | [![npm version](https://img.shields.io/npm/v/@moon7/result.svg)](https://www.npmjs.com/package/@moon7/result)   |
+| [@moon7/signals](https://github.com/moon7-io/moon7-signals) | Reactive programming with Signals, Sources, and Streams                         | [![npm version](https://img.shields.io/npm/v/@moon7/signals.svg)](https://www.npmjs.com/package/@moon7/signals) |
+
+## 🤝 Contributing
 ## 🔗 Related Libraries
 
 | Library                                                     | Description                                                                     | npm                                                                                                             |
@@ -408,9 +494,12 @@ const item = items.find(i => i.id === id) ?? raise(new Error(`Item ${id} not fou
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 License
+## 📝 License
 
+This project is released under the MIT License. See the [LICENSE](https://github.com/moon7-io/moon7-result/blob/main/LICENSE) file for details.
 This project is released under the MIT License. See the [LICENSE](https://github.com/moon7-io/moon7-result/blob/main/LICENSE) file for details.
 
 ## 🌟 Acknowledgements
 
+Created and maintained by [Munir Hussin](https://github.com/profound7).
 Created and maintained by [Munir Hussin](https://github.com/profound7).
