@@ -409,10 +409,10 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 The moon7 ecosystem includes several companion libraries that work well together:
 
-- [**@moon7/async**](https://github.com/profound7/moon7-async) - Utilities for asynchronous programming
-- [**@moon7/inspect**](https://github.com/profound7/moon7-inspect) - Advanced object inspection and formatting
-- [**@moon7/validate**](https://github.com/profound7/moon7-validate) - Validation library with composable rules
-- [**@moon7/signals**](https://github.com/profound7/moon7-signals) - Simple, lightweight signal/event system
+- [**@moon7/async**](https://github.com/moon7-io/moon7-async) - Utilities for asynchronous programming
+- [**@moon7/inspect**](https://github.com/moon7-io/moon7-inspect) - Advanced object inspection and formatting
+- [**@moon7/validate**](https://github.com/moon7-io/moon7-validate) - Validation library with composable rules
+- [**@moon7/signals**](https://github.com/moon7-io/moon7-signals) - Simple, lightweight signal/event system
 
 ## License
 
