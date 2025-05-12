@@ -334,7 +334,7 @@ const item = items.find(i => i.id === id) ?? raise(new Error(`Item ${id} not fou
 
 ## 📚 API Reference
 
-| Export                                  | Description                                                      |
+| API                                     | Description                                                      |
 | --------------------------------------- | ---------------------------------------------------------------- |
 | **📋 Core Types**                        |                                                                  |
 | `Result<V, E>`                          | Union type of `Success<V>` and `Failure<E>`                      |
